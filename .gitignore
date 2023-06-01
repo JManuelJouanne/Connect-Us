@@ -1,3 +1,13 @@
+
 node_modules/
 .DS_Store
+.env
+
+.vscode/
+.idea/
+
+build/
+dist/
+
+package-lock.json
 ```

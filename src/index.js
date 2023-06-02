@@ -1,19 +1,21 @@
-const koa = require('koa');
-const { koaBody } = require('koa-body');
-const koaLogger = require('koa-logger');
-const router = require('./routes');
+const app = require('./app');
+const db = require('./models');
+const dotenv = require('dotenv');
 
-const app = new koa();
+dotenv.config();
 
-app.use(koaLogger());
-app.use(koaBody());
+const PORT = process.env.PORT || 3000;
 
-app.use(router.routes());
-
-app.use((ctx, next) => {
-    ctx.body = 'Hola mundo';
-});
-
-app.listen(3000, () => {
-    console.log('Estoy escuchando en el puerto 3000');
-});
+db.sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection to the database has been established successfully.');
+    app.listen(PORT, (err) => {
+      if (err) {
+        return console.error('Failed', err);
+      }
+      console.log(`Listening on port ${PORT}`);
+      return app;
+    });
+  })
+  .catch((err) => console.error('Unable to connect to the database:', err));

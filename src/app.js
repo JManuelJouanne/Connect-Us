@@ -13,7 +13,7 @@ app.use(koaBody());
 
 app.use(router.routes());
 
-app.use((ctx, next) => {
+app.use((ctx) => {
     ctx.body = 'Hola mundo';
 });
 

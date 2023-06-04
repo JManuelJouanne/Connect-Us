@@ -39,25 +39,19 @@ router.post('game.create', '/', async (ctx) => {
     }
 });
 
-//unirse a un game existente
-router.patch('game.turn', '/:id/:userId', async (ctx) => {
+//cambuiar el turno
+router.patch('game.turn', '/:id', async (ctx) => {
     try {
-        //join to an existing game
         const game = await ctx.orm.Game.findByPk(ctx.params.id);
-        const player = await ctx.orm.Player.findByPk(ctx.params.userId);
         if (game.turn == 1){
             game.turn = 2;
-            player.gameId = game.id;
             await game.save();
-            await player.save();
             ctx.body = game;
             ctx.status = 200;
         }
         else if (game.turn == 2){
             game.turn = 1;
-            player.gameId = game.id;
             await game.save();
-            await player.save();
             ctx.body = game;
             ctx.status = 200;
         }
@@ -93,7 +87,7 @@ router.delete('game.delete', '/:id', async (ctx) => {
             await cells[i].destroy();
         }
         await game.destroy();
-        ctx.body = game;
+        ctx.body = {message: "Game deleted"};
         ctx.status = 200;
     } catch (error){        
         ctx.body = error;

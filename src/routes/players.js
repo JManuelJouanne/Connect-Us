@@ -52,7 +52,7 @@ router.get('players.show', '/game/:gameId', async (ctx) => {
     }
 });
 
-//lista de los players de un game y un usuario
+//lista de los players de un game y un usuario (No se si se use)
 router.get('player.show', '/:userId/:gameId', async (ctx) => {
     try {
         const player = await ctx.orm.Player.findOne({where:{userId:ctx.params.userId, gameId:ctx.params.gameId}});
@@ -64,11 +64,15 @@ router.get('player.show', '/:userId/:gameId', async (ctx) => {
     }
 });
 
-router.post('player.create', '/', async (ctx) => {
+//crear un nuevo player y unirse a un game existente
+router.post('player.create', '/:gameId', async (ctx) => {
     try {
-        const player = await ctx.orm.Player.create(ctx.request.body);
-        ctx.body = player;
-        ctx.status = 200;
+        const players = await ctx.orm.Player.findAll({where:{gameId:ctx.params.gameId}});
+        if (players.length < 2){
+            const player = await ctx.orm.Player.create(ctx.request.body);
+            ctx.body = player;
+            ctx.status = 200;
+        }
     } catch (error){
         ctx.body = error;
         ctx.status = 400;

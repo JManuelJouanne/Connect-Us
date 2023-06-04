@@ -309,3 +309,13 @@ Para correr la aplicación se debe ejecute
 ````
 yarn start
 ````
+
+## Otros Detalles
+### EsLint
+Usamos Eslint para evitar errores en el código, como variables que no se estén usando. Se puede ver que no hay errores de código con el comando
+````
+npx eslint ./src 
+````
+### GitFlow
+Usamos GitFlow para el control de versiones. Tuvimos algunas descordinaciones chicas, como hacer el merge local y después hacer el push o derrepente editar algún pedazo de código desde la branch equivocada, pero en general funcionó bien y no nos trajo problemas. Se puede ver el historial de commits en el repositorio de github. Siempre hicimos merge a la rama develop.
+

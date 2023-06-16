@@ -26,47 +26,20 @@ router.get('game.show', '/:id', async (ctx) => {
     }
 });
 
-
 //crear un nuevo game
 router.post('game.create', '/', async (ctx) => {
     try {
-        const game = await ctx.orm.Game.create(ctx.request.body);
-        ctx.body = game;
-        ctx.status = 200;
-    } catch (error){
-        ctx.body = error;
-        ctx.status = 400;
-    }
-});
-
-//cambuiar el turno
-router.patch('game.turn', '/:id', async (ctx) => {
-    try {
-        const game = await ctx.orm.Game.findByPk(ctx.params.id);
-        if (game.turn == 1){
-            game.turn = 2;
-            await game.save();
-            ctx.body = game;
-            ctx.status = 200;
+        const game = await ctx.orm.Game.create({turn:1, winner:null});
+        console.log(game.dataValues);
+        for (let i = 0; i < 9; i++){
+            for (let j = 0; j < 7; j++){
+                await ctx.orm.Cell.create({gameId:game.id, column:i, row:j, status:0});
+            }
         }
-        else if (game.turn == 2){
-            game.turn = 1;
-            await game.save();
-            ctx.body = game;
-            ctx.status = 200;
-        }
-    } catch (error){
-        ctx.body = error
-        ctx.status = 400
-    }
-});
+        const n_player = Math.floor(Math.random() * 2) + 1;
+        const player = await ctx.orm.Player.create({userId:ctx.request.body.userId, gameId:game.id, number:n_player});
+        console.log(player.dataValues);
 
-//game is finished
-router.put('game.finish', '/:id', async (ctx) => {
-    try {
-        const game = await ctx.orm.Game.findByPk(ctx.params.id);
-        game.winner = ctx.request.body.winner;
-        await game.save();
         ctx.body = game;
         ctx.status = 200;
     } catch (error){
@@ -87,7 +60,7 @@ router.delete('game.delete', '/:id', async (ctx) => {
             await cells[i].destroy();
         }
         await game.destroy();
-        ctx.body = {message: "Game deleted"};
+        ctx.body = {message: "Partida Eliminada"};
         ctx.status = 200;
     } catch (error){        
         ctx.body = error;

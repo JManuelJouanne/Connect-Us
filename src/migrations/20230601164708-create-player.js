@@ -9,8 +9,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
+      number: {
+        type: Sequelize.INTEGER
       },
       userId: {
         type: Sequelize.INTEGER,
@@ -19,9 +19,6 @@ module.exports = {
       gameId: {
         type: Sequelize.INTEGER,
         references: { model: 'Games', key: 'id' },
-      },
-      color: {
-        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

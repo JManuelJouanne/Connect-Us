@@ -12,7 +12,7 @@ Nuestro modelo ER conciste en cuatro Entidades
 * `Game` turn, winner
     * Tiene dos players (Uno contra uno)
     * Tiene varias celdas (7 x 9)
-* `Player` name, userId, gameId, color
+* `Player` number (1 o 2), userId, gameId
     * Pertenecen a un usuario
     * Pertenecen a una partida
 * `Cell` gameId, column, row, status (0: celda vacía, 1: ocupada por jugador 1, 2: ocupada por jugador 2)
@@ -46,11 +46,11 @@ cratedb connectus_development
 ````
 A continuación se corren las migraciones
 ````
-yarn sequelize-cli dbmigrate
+yarn sequelize-cli db:migrate
 ````
 Y por último se corren los seeders
 ````
-yarn sequelize-cli dbseedall
+yarn sequelize-cli db:seed:all
 ````
 Los seeders contienen instancias de todas las tablas, inculyendo dos usuarios, dos partidas, cuatro players (dos por cada partida) y 126 celdas del tablero (63 por cada partida, tablero de 7x9).
 
@@ -99,7 +99,7 @@ Se obtiene la lista de usuarios con el metodo GET en la siguiente ruta
 ````
 http://localhost:3000/users
 ````
-retna un json por cada usuario.
+retorna un json por cada usuario.
 
 #### Obtener un usuario
 Se obtiene un usuario con el metodo GET en la ruta `http://localhost:3000/users/:id` especificando el id del usuario que se quiere obtener. Por ejemplo, para obtener el usuario con id 3 se debe hacer la siguiente petición
@@ -129,6 +129,8 @@ http://localhost:3000/users/3
 ````
 Retorna un json con el mensaje 'Usuario Eliminado'.
 
+
+
 ### Games
 #### Obtener lista de todas las partidas
 Se obtiene la lista de todas las partidas con el metodo GET en la siguiente ruta
@@ -152,38 +154,25 @@ http://localhost:3000/games
 Por ejemplo, se podría crear con el body
 ````
 {
-    "turn": 1,
-    "winner": null
+    "userId": 1
 }
 ````
-Retorna un json con la partida creada.
-
-#### Cambiar el turno de la partida
-Se actualiza la partida con el metodo PATCH en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere actualizar. Por ejemplo, para actualizar la partida con id 2 se debe hacer la siguiente petición
-````
-http://localhost:3000/games/2
-````
-Se asume que al actualizar la partida el turno cambia automaticamente al jugador contrario. Retorna un json con la partida actualizada.
-
-#### Finalizar la partida
-Se finaliza la partida con el metodo PUT en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere finalizar. Por ejemplo, para finalizar la partida con id 2 se debe hacer la siguiente petición
-````
-http://localhost:3000/games/2
-````
-En el body solo va el atributo que se quiere actualizar, en este caso el winner. Si el ganador es el jugador con id 2, el body sería
+Este endpoint, primero crea una partida con los siguientes atributos
 ````
 {
-    "winner": "vicente"
+    "winner": null,
+    "turn": 1
 }
 ````
-Retorna un json con la partida finalizada.
+Luego crea todas las celdas del tablero en su respectiva tabla, con el status igual a 0. Por último, crea un player con el id del usuario que creó la partida y el id de la partida creada. Se define aleatoriamente si el usuario va a ser el jugador 1 o el jugador 2. (El otro jugador se une después a la partida)
+Retorna un json con la partida creada.
 
 #### Borrar una partida
-Se borra una partida con el metodo DELETE en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere borrar. Por ejemplo, para borrar la partida con id 2 se debe hacer la siguiente petición
+Se borra una partida con el metodo DELETE en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere borrar. También se borran los players y las celdas asociadas a la partida. Por ejemplo, para borrar la partida con id 2 se debe hacer la siguiente petición
 ````
 http://localhost:3000/games/2
 ````
-Retorna un json con el mensaje "game deleted".
+Retorna un json con el mensaje "Partida Eliminada".
 
 ### Players
 #### Lista de todos los players
@@ -214,27 +203,24 @@ http://localhost:3000/players/game/1
 ````
 Retorna un json por cada player de la partida.
 
-#### Crear un player
-Se crea el player con el metodo POST en la siguiente ruta
-````
-http://localhost:3000/players
-````
-Por ejemplo, se podría crear con el body (Primero hay que crear un game con id 3)
+#### Unirse a partida existente (Crear un player)
+Se crea el player con el metodo POST en la siguiente ruta `http://localhost:3000/players/:gameId`. Por ejemplo, se podría crear con el body (Primero hay que crear un game con id 3) en la ruta
+`````
+http://localhost:3000/players/3
+`````
+con el body
 ````
 {
-    "name": "Alexis",
-    "userId": 1,
-    "gameId": 3,
-    "color": "red"
+    "userId": 1
 }
 ````
-El "userId" y el "gameId" deben existir en la lista de user y la de game.
+Esto crea un player con el id del usuario que se especifica en el body y el id de la partida que se especifica en la ruta. El número de jugador lo obtiene viendo el número del otro jugador de la partida que se eligue aleatoriamente.
 Retorna un json con el player creado.
 
 #### Eliminar un player
-Se elimina un player con el metodo DELETE en la ruta `http://localhost:3000/players/:id` especificando el id del player que se quiere eliminar. Por ejemplo, para eliminar el player con id 3 se debe hacer la siguiente petición
+Se elimina un player con el metodo DELETE en la ruta `http://localhost:3000/players/:id` especificando el id del player que se quiere eliminar. Por ejemplo, para eliminar el player con id 4 se debe hacer la siguiente petición
 ````
-http://localhost:3000/players/3
+http://localhost:3000/players/4
 ````
 Retorna un json con el player eliminado.
 
@@ -247,23 +233,7 @@ http://localhost:3000/cells/1
 ````
 Retorna un json por cada celda de la partida.
 
-#### Crear una celda
-Las celadas se crean con el metodo POST en la siguiente ruta
-````
-http://localhost:3000/cells
-````
-Con un body como el siguiente
-````
-{
-    "gameId": 3,
-    "column": 1,
-    "row": 1,
-    "status": 0
-}
-````
-Este método se va a invocar de manera iterada desde el front para crear las 63 celdas de cada partida. Retorna un json con la celda creada.
-
-#### Actualizar una celda (colocar una ficha)
+#### Colocar Ficha en una columna (Actualizar una celda)
 Se actualiza una celda con el metodo PATCH especificando el id de la partida y la columna en la que se quiere colocar la ficha con una ruta tipo `http://localhost:3000/cells/:gameId/:column`. Por ejemplo, para colocar una ficha en la columna 9 de la partida 1 se debe hacer la siguiente petición
 ````
 http://localhost:3000/cells/1/9
@@ -274,35 +244,13 @@ En el body solo va el atributo que se quiere actualizar, en este caso el status.
     "status": 2
 }
 ````
-Retorna un json con la celda actualizada. En caso de que la columna esté llena, retorna un json con el mensaje 'Columna llena'.
+Para este método, el flujo de código es bastante más largo. Se implementaron funciones en la carpeta `modules` para hacer un código más legible. El flujo es el siguiente:
+1. Se verifica que el jugador que está haciendo la jugada sea el jugador que le toca jugar y que la partida no se haya acabado. Si no es así, retorna un json con el mensaje 'No es tu turno'.
+2. Se intenta colocar la ficha en la columna que se especifica en la ruta. Si la columna está llena, retorna un json con el mensaje 'Columna llena'.
+3. Se verifica si el jugador que hizo la jugada ganó la partida.
+4. En caso de que el jugador que hizo la jugada no haya ganado, se cambia el turno de la partida para que juegue el otro jugador. Se rotorna un json con la celda acutalizada.
+5. En caso de que el jugador que puso la ficha haya ganado, se cambia el winner al numero del jugador que ganó. Se retorna un json con la celda actualizada y el mensaje 'Ganador'.
 
-#### Ver si alguien ganó
-Despúes de que se coloque cada ficha, se debe verificar si alguien ganó. Para esto vamos a hacer un GET a la ruta `http://localhost:3000/cells/winner/:gameId`, que nos va a devolver el id del jugador que ganó en un json. Si no hay ganador, devuelve el mensaje "no winner" en un json.
-````
-http://localhost:3000/cells/winner/1
-````
-El método tiene un consele.log que muestra el tablero. Se puede ver en la terminal que se está corriendo la aplocación.
-Como no hubo ganador, se va a colocar una ficha en la columna 5 con el método PATCH
-````
-http://localhost:3000/cells/1/5
-````
-````
-{
-    "status": 1
-}
-````
-y luego volvemos a ejecutar el método GET
-````
-http://localhost:3000/cells/winner/1
-````
-y se verá en la respuesta que el ganador es el jugador 1, por unir sus fichas en diagonal.
-
-#### Borrar todas las celdas de una partida
-Se borran todas las celdas de una partida con el metodo DELETE en la ruta `http://localhost:3000/cells/:gameId`. Por ejemplo, para borrar las celdas de la partida con id 3 se debe hacer la siguiente petición
-````
-http://localhost:3000/cells/3
-````
-Retorna un json con el mensaje 'Tablero eliminado'.
 
 ## Correr la aplicación
 Para correr la aplicación se debe ejecute
@@ -314,7 +262,7 @@ yarn start
 ### EsLint
 Usamos Eslint para evitar errores en el código, como variables que no se estén usando. Se puede ver que no hay errores de código con el comando
 ````
-npx eslint ./src 
+npx eslint ./src
 ````
 ### GitFlow
 Usamos GitFlow para el control de versiones. Tuvimos algunas descordinaciones chicas, como hacer el merge local y después hacer el push o derrepente editar algún pedazo de código desde la branch equivocada, pero en general funcionó bien y no nos trajo problemas. Se puede ver el historial de commits en el repositorio de github. Siempre hicimos merge a la rama develop.

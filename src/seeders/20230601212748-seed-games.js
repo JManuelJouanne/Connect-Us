@@ -8,7 +8,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        turn: 2,
+        turn: 1,
         winner: null,
         createdAt: new Date(),
         updatedAt: new Date(),

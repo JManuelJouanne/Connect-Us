@@ -2,34 +2,30 @@
 module.exports = {
   up: (queryInterface) => queryInterface.bulkInsert('Players', [
       {
-        name: 'manueljouanne',
+        number: 1,
         userId: 1,
         gameId: 1,
-        color: 'red',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'vicentedelpiano',
+        number: 2,
         userId: 2,
         gameId: 1,
-        color: 'blue',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'manueljouanne',
+        number: 2,
         userId: 1,
         gameId: 2,
-        color: 'green',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'vicentedelpiano',
+        number: 1,
         userId: 2,
         gameId: 2,
-        color: 'yellow',
         createdAt: new Date(),
         updatedAt: new Date(),
       },

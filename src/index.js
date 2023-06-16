@@ -1,7 +1,7 @@
 const app = require('./app');
 const db = require('./models');
 const dotenv = require('dotenv');
-const express = require('express');
+//const express = require('express');
 
 dotenv.config();
 

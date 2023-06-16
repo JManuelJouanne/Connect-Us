@@ -43,11 +43,11 @@ router.post('user.validate', '/login', async (ctx) => {
             ctx.body = user;
             ctx.status = 200;
         } else {
-            ctx.body = "Contraseña incorrecta";
+            ctx.body = {message: "Contraseña incorrecta"};
             ctx.status = 200;
         }
     } catch (error){
-        ctx.body = "Usuario no encontrado";
+        ctx.body = {message: "Usuario no encontrado"};
         ctx.status = 400;
     }
 });
@@ -63,9 +63,6 @@ router.delete('user.delete', '/:id', async (ctx) => {
         ctx.status = 400;
     }
 });
-
-
-//actualizar, eliminar --> put, delete | para más adelante
 
 
 module.exports = router;

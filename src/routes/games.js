@@ -31,9 +31,9 @@ router.post('game.create', '/', async (ctx) => {
     try {
         const game = await ctx.orm.Game.create({turn:1, winner:null});
         console.log(game.dataValues);
-        for (let i = 0; i < 9; i++){
-            for (let j = 0; j < 7; j++){
-                await ctx.orm.Cell.create({gameId:game.id, column:i, row:j, status:0});
+        for (let i = 0; i < 7; i++){
+            for (let j = 0; j < 9; j++){
+                await ctx.orm.Cell.create({gameId:game.id, column:j, row:i, status:0});
             }
         }
         const n_player = Math.floor(Math.random() * 2) + 1;

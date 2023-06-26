@@ -23,7 +23,7 @@ async function putTokenInColumn(n_column, gameId, player) {
       column[row] = status;
     }
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = 6; i >= 0; i--) {
       if (column[i] === 0) {
         const cell = cells.find(cell => cell.row === i);
         await cell.update({status: player});

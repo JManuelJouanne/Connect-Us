@@ -37,6 +37,7 @@ router.patch('cell.update', '/:gameId/:column', async (ctx) => {
                 if (winner === 0) {
                     await move.changeTurn(gameId);
                     ctx.body = {cell: put_token.dataValues, message: "No Ganador"};
+                    console.log(ctx.body);
                 } else {
                     await move.finishGame(gameId, winner);
                     ctx.body = {cell: put_token.dataValues, message: "Ganador"};

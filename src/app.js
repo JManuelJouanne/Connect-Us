@@ -15,6 +15,14 @@ app.use(cors());
 app.use(koaLogger());
 app.use(koaBody());
 
+//CORS
+app.use(async (ctx, next) => {
+    ctx.set('Access-Control-Allow-Origin', 'http://localhost:5173') //editar para el deploy
+    ctx.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')
+    ctx.set('Access-Control-Allow-Headers', 'Content-Type')
+    await next()
+})
+
 app.use(router.routes());
 
 app.use((ctx) => {

@@ -1,20 +1,28 @@
+const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
 
 module.exports = {
-  up: (queryInterface) => queryInterface.bulkInsert('Users', [
+  up: async (queryInterface) => {
+    const hash_manuel = await bcrypt.hash('manuel123', saltRounds);
+    const hash_vicente = await bcrypt.hash('vicentel123', saltRounds);
+
+    return queryInterface.bulkInsert('Users', [
       {
         username: 'manueljouanne',
-        password: 'manuel123',
+        password: hash_manuel,
         mail: 'jmjouanne@uc.cl',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         username: 'viecentedelpiano',
-        password: 'vicentel123',
+        password: hash_vicente,
         mail: 'vicente.delpiano@uc.cl',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-  ]),
+  ])
+  },
   down: (queryInterface) => queryInterface.bulkDelete('Users', null, {}),
 };

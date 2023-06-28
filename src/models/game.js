@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Game.init({
     turn: DataTypes.INTEGER,
-    winner: DataTypes.STRING
+    winner: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Game',

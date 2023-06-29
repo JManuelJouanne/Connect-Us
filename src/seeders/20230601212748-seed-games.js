@@ -4,12 +4,14 @@ module.exports = {
       {
         turn: 1,
         winner: null,
+        friend: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         turn: 1,
         winner: null,
+        friend: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

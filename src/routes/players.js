@@ -1,4 +1,5 @@
 const Router = require('koa-router');
+const games = require('./../modules/games');
 
 const router = new Router();
 
@@ -52,18 +53,38 @@ router.get('players.show', '/game/:gameId', async (ctx) => {
     }
 });
 
-//unirse a partida existene
-router.post('player.join', '/:gameId', async (ctx) => {
+//unirse a partida con amigo
+router.post('friend_player.join', '/:gameId', async (ctx) => {
     try {
-        const players = await ctx.orm.Player.findAll({where:{gameId:ctx.params.gameId}});
-        if (players.length === 1){
-            const n_player = (players[0].number % 2) + 1;
-            const player = await ctx.orm.Player.create({userId:ctx.request.body.userId, gameId:ctx.params.gameId, number:n_player});
+        const game = await ctx.orm.Game.findByPk(ctx.params.gameId);
+        if (game.friend === 1){
+            await game.update({friend:2});
+            const player = await games.create_player(ctx.request.body.userId, ctx.params.gameId);
             ctx.body = player;
             ctx.status = 200;
         } else {
-            ctx.body = {message: "La partida está llena"};
+            ctx.body = {message: "Ya hay dos jugadores en la partida"};
             ctx.status = 400;
+        }
+    } catch (error){
+        ctx.body = error;
+        ctx.status = 400;
+    }
+});
+
+//unirse a partida random
+router.post('player.join', '/', async (ctx) => {
+    try {
+        const game = await ctx.orm.Game.findAll({where:{friend:0}});
+        if (game.length > 0){
+            await game[0].update({friend:2});
+            const player = await games.create_player(ctx.request.body.userId, game[0].id);
+            ctx.body = player;
+            ctx.status = 200;
+        } else {
+            const game = await games.create_game(ctx.request.body.userId, 0);
+            ctx.body = game;
+            ctx.status = 200;
         }
     } catch (error){
         ctx.body = error;

@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   Game.init({
     turn: DataTypes.INTEGER,
     winner: DataTypes.STRING,
+    friend: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Game',

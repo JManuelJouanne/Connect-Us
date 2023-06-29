@@ -15,6 +15,9 @@ module.exports = {
       winner: {
         type: Sequelize.STRING
       },
+      friend: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

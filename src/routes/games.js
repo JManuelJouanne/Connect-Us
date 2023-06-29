@@ -1,4 +1,5 @@
 const Router = require('koa-router');
+const game = require('../models/game');
 
 const router = new Router();
 
@@ -69,23 +70,40 @@ router.delete('game.delete', '/:id', async (ctx) => {
 });
 
 //list of games with only one player
-router.get('games.show', '/available', async (ctx) => {
+router.get('game.list', '/available/game/:userId', async (ctx) => {
+    const games = await ctx.orm.Game.findAll();
+    const available_games = [];
+    let players = [];
+  
     try {
-      const games = await ctx.orm.Game.findAll();
-      const games_with_one_player = [];
       for (let i = 0; i < games.length; i++) {
-        const players = await ctx.orm.Player.findAll({ where: { gameId: games[i].id } });
-        if (players.length === 1) {
-          games_with_one_player.push(games[i]);
+        players = await ctx.orm.Player.findAll({
+          where: { gameId: games[i].id }
+        });
+  
+        if (players.length === 1 && players[0].userId.toString() !== ctx.params.userId.toString()) {
+          console.log(players[0].userId, ctx.params.userId);
+          available_games.push(games[i]);
         }
       }
-      ctx.body = games_with_one_player;
+      current_game = available_games[0];
+      for (let i = 0; i < available_games.length; i++) {
+        if (available_games[i].id > current_game.id) {
+          current_game = available_games[i];
+        }
+      }
+  
+      ctx.body = current_game;
       ctx.status = 200;
     } catch (error) {
+      console.log(error);
       ctx.body = error;
       ctx.status = 400;
     }
   });
+  
+  
+  
   
 
 module.exports = router;

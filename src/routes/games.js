@@ -1,4 +1,5 @@
 const Router = require('koa-router');
+const games = require('./../modules/games');
 
 const router = new Router();
 
@@ -26,20 +27,10 @@ router.get('game.show', '/:id', async (ctx) => {
     }
 });
 
-//crear un nuevo game
-router.post('game.create', '/', async (ctx) => {
+//crear un nuevo game con amigo
+router.post('friend_game.create', '/', async (ctx) => {
     try {
-        const game = await ctx.orm.Game.create({turn:1, winner:null});
-        console.log(game.dataValues);
-        for (let i = 0; i < 7; i++){
-            for (let j = 0; j < 9; j++){
-                await ctx.orm.Cell.create({gameId:game.id, column:j, row:i, status:0});
-            }
-        }
-        const n_player = Math.floor(Math.random() * 2) + 1;
-        const player = await ctx.orm.Player.create({userId:ctx.request.body.userId, gameId:game.id, number:n_player});
-        console.log(player.dataValues);
-
+        const game = await games.create_game(ctx.request.body.userId, 1);
         ctx.body = game;
         ctx.status = 200;
     } catch (error){
@@ -68,24 +59,5 @@ router.delete('game.delete', '/:id', async (ctx) => {
     }
 });
 
-//list of games with only one player
-router.get('games.show', '/available', async (ctx) => {
-    try {
-      const games = await ctx.orm.Game.findAll();
-      const games_with_one_player = [];
-      for (let i = 0; i < games.length; i++) {
-        const players = await ctx.orm.Player.findAll({ where: { gameId: games[i].id } });
-        if (players.length === 1) {
-          games_with_one_player.push(games[i]);
-        }
-      }
-      ctx.body = games_with_one_player;
-      ctx.status = 200;
-    } catch (error) {
-      ctx.body = error;
-      ctx.status = 400;
-    }
-  });
-  
 
 module.exports = router;

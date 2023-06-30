@@ -60,13 +60,13 @@ router.delete('game.delete', '/:id', async (ctx) => {
 });
 
 //list of games with only one player
-router.get('games.show', '/available', async (ctx) => {
+router.get('games.show', '/available/game/:userId', async (ctx) => {
+    let games_with_one_player = [];
     try {
       const games = await ctx.orm.Game.findAll();
-      const games_with_one_player = [];
       for (let i = 0; i < games.length; i++) {
         const players = await ctx.orm.Player.findAll({ where: { gameId: games[i].id } });
-        if (players.length === 1) {
+        if (players.length === 1 && players[0].userId !== ctx.params.userId) {
           games_with_one_player.push(games[i]);
         }
       }

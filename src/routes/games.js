@@ -70,7 +70,13 @@ router.get('games.show', '/available/game/:userId', async (ctx) => {
           games_with_one_player.push(games[i]);
         }
       }
-      ctx.body = games_with_one_player;
+      current_game = games_with_one_player[0];
+      for (let i = 0; i < games_with_one_player.length; i++) {
+            if (games_with_one_player[i].id > current_game.id) {
+                current_game = games_with_one_player[i];
+            }
+      }
+      ctx.body = current_game;
       ctx.status = 200;
     } catch (error) {
       ctx.body = error;

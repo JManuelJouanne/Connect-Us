@@ -1,10 +1,11 @@
 const Router = require('koa-router');
 const games = require('./../modules/games');
+const authUtils = require('../modules/auth');
 
 const router = new Router();
 
 //lista de todos los players
-router.get('players.list', '/', async (ctx) => {
+router.get('players.list', '/', authUtils.checkAdmin, async (ctx) => {
     try {
         const players = await ctx.orm.Player.findAll();
         ctx.body = players;
@@ -16,7 +17,7 @@ router.get('players.list', '/', async (ctx) => {
 });
 
 //mostrar un player
-router.get('player.show', '/:id', async (ctx) => {
+router.get('player.show', '/:id', authUtils.checkUser, async (ctx) => {
     try{
         const player = await ctx.orm.Player.findByPk(ctx.params.id);
         ctx.body = player;
@@ -30,7 +31,7 @@ router.get('player.show', '/:id', async (ctx) => {
 });
 
 //lista de los players de un usuario
-router.get('player.list', '/user/:userId', async (ctx) => {
+router.get('player.list', '/user/:userId', authUtils.checkUser, async (ctx) => {
     try {
         const players = await ctx.orm.Player.findAll({where:{userId:ctx.params.userId}});
         ctx.body = players;
@@ -42,7 +43,7 @@ router.get('player.list', '/user/:userId', async (ctx) => {
 });
 
 //lista de los players de un game
-router.get('players.show', '/game/:gameId', async (ctx) => {
+router.get('players.show', '/game/:gameId', authUtils.checkUser, async (ctx) => {
     try {
         const players = await ctx.orm.Player.findAll({where:{gameId:ctx.params.gameId}});
         ctx.body = players;
@@ -54,7 +55,7 @@ router.get('players.show', '/game/:gameId', async (ctx) => {
 });
 
 //unirse a partida con amigo
-router.post('friend_player.join', '/:gameId', async (ctx) => {
+router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) => {
     try {
         const game = await ctx.orm.Game.findByPk(ctx.params.gameId);
         if (game.friend === 1){
@@ -73,7 +74,7 @@ router.post('friend_player.join', '/:gameId', async (ctx) => {
 });
 
 //unirse a partida random
-router.post('player.join', '/', async (ctx) => {
+router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
     try {
         const game = await ctx.orm.Game.findAll({where:{friend:0}});
         if (game.length > 0){
@@ -92,7 +93,7 @@ router.post('player.join', '/', async (ctx) => {
     }
 });
 
-router.delete('player.delete', '/:id', async (ctx) => {
+router.delete('player.delete', '/:id', authUtils.checkUser, async (ctx) => {
     try {
         const player = await ctx.orm.Player.findByPk(ctx.params.id);
         await player.destroy();

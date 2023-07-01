@@ -3,8 +3,8 @@ const authUtils = require('../modules/auth');
 
 const router = new Router();
 
-// router.get('users.list', '/', authUtils.checkAdmin, async (ctx) => {
-router.get('users.list', '/', async (ctx) => {
+router.get('users.list', '/', authUtils.checkAdmin, async (ctx) => {
+//router.get('users.list', '/', async (ctx) => {
     try {
         const users = await ctx.orm.User.findAll();
         ctx.body = users;
@@ -15,7 +15,7 @@ router.get('users.list', '/', async (ctx) => {
     }
 });
 
-router.get('user.show', '/:id', async (ctx) => {
+router.get('user.show', '/:id', authUtils.checkAdmin, async (ctx) => {
     try {
         const user = await ctx.orm.User.findByPk(ctx.params.id);
         //const user = await ctx.orm.User.findOne({where:{id:ctx.params.id}});
@@ -27,7 +27,7 @@ router.get('user.show', '/:id', async (ctx) => {
     }
 });
 
-router.delete('user.delete', '/:id', async (ctx) => {
+router.delete('user.delete', '/:id', authUtils.checkAdmin, async (ctx) => {
     try {
         const user = await ctx.orm.User.findByPk(ctx.params.id);
         await user.destroy();

@@ -1,10 +1,11 @@
 const Router = require('koa-router');
 const games = require('./../modules/games');
+const authUtils = require('../modules/auth');
 
 const router = new Router();
 
 //lista de todos los games
-router.get('games.list', '/', async (ctx) => {
+router.get('games.list', '/', authUtils.checkAdmin, async (ctx) => {
     try {
         const games = await ctx.orm.Game.findAll();
         ctx.body = games;
@@ -16,7 +17,7 @@ router.get('games.list', '/', async (ctx) => {
 });
 
 //un game específico
-router.get('game.show', '/:id', async (ctx) => {
+router.get('game.show', '/:id', authUtils.checkUser, async (ctx) => {
     try {
         const game = await ctx.orm.Game.findByPk(ctx.params.id);
         ctx.body = game;
@@ -28,7 +29,7 @@ router.get('game.show', '/:id', async (ctx) => {
 });
 
 //crear un nuevo game con amigo
-router.post('friend_game.create', '/', async (ctx) => {
+router.post('friend_game.create', '/', authUtils.checkUser, async (ctx) => {
     try {
         const game = await games.create_game(ctx.request.body.userId, 1);
         ctx.body = game;
@@ -39,7 +40,7 @@ router.post('friend_game.create', '/', async (ctx) => {
     }
 });
 
-router.delete('game.delete', '/:id', async (ctx) => {
+router.delete('game.delete', '/:id', authUtils.checkUser, async (ctx) => {
     try {
         const game = await ctx.orm.Game.findByPk(ctx.params.id);
         const players = await ctx.orm.Player.findAll({where:{gameId:ctx.params.id}});

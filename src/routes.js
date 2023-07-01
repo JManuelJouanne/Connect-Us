@@ -11,14 +11,14 @@ dotenv.config();
 
 const router = new Router();
 
-router.use("/games", games.routes());
-router.use("/players", players.routes());
-router.use("/cells", cells.routes());
 router.use(authentication.routes());
-router.use("/users", users.routes()); //mover
 
 // rotas protegidas (debajo de este middleware)
 router.use(jwtMiddleware({ secret: process.env.JWT_SECRET }));
+router.use("/users", users.routes());
+router.use("/games", games.routes());
+router.use("/players", players.routes());
+router.use("/cells", cells.routes());
 
 
 module.exports = router;

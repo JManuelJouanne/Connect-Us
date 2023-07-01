@@ -80,11 +80,12 @@ router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
         if (game.length > 0){
             await game[0].update({friend:2});
             const player = await games.create_player(ctx.request.body.userId, game[0].id);
-            ctx.body = player;
+            ctx.body = {player: player, game: game[0]};
             ctx.status = 200;
         } else {
             const game = await games.create_game(ctx.request.body.userId, 0);
-            ctx.body = game;
+            const player = await games.create_player(ctx.request.body.userId, game.id);
+            ctx.body = {player: player, game: game};
             ctx.status = 200;
         }
     } catch (error){

@@ -40,6 +40,7 @@ router.post('authentication.signup', '/signup', async (ctx) => {
         ctx.body = {
             username: user.username,
             mail: user.mail,
+            user: user.id,
             access_token: token,
             token_type: "Bearer",
             expires_in: expirationSeconds,
@@ -80,6 +81,7 @@ router.post('authentication.login', '/login', async (ctx) => {
         ctx.body = {
             username: user.username,
             mail: user.mail,
+            user: user.id,
             access_token: token,
             token_type: "Bearer",
             expires_in: expirationSeconds,

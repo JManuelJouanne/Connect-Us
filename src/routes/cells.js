@@ -1,10 +1,11 @@
 const Router = require('koa-router');
 const move = require('./../modules/move');
+const authUtils = require('../modules/auth');
 
 const router = new Router();
 
 //lista de las celdas de un tablero específico
-router.get('cells.show', '/:gameId', async (ctx) => {
+router.get('cells.show', '/:gameId', authUtils.checkUser, async (ctx) => {
     try {
         const board = await ctx.orm.Cell.findAll({where:{gameId:ctx.params.gameId}});
         ctx.body = board;
@@ -16,7 +17,7 @@ router.get('cells.show', '/:gameId', async (ctx) => {
 });
 
 //jugada, poner ficha en una columna
-router.patch('cell.update', '/:gameId/:column', async (ctx) => {
+router.patch('cell.update', '/:gameId/:column', authUtils.checkUser, async (ctx) => {
     try {
         const gameId = ctx.params.gameId;
         const n_column = ctx.params.column;

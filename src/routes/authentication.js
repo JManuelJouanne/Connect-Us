@@ -15,6 +15,11 @@ router.post('authentication.signup', '/signup', async (ctx) => {
         ctx.status = 400;
         return
     }
+    if (info.password.length < 8 || !info.password.match(/[a-z]/) || !info.password.match(/[0-9]/)) {
+        ctx.body = {message: 'La contraseña debe tener al menos 8 caracteres, una letra y un número'};
+        ctx.status = 400;
+        return
+    }
     try {
         const saltRounds = 10;
         const hash = await bcrypt.hash(info.password, saltRounds);
@@ -23,13 +28,25 @@ router.post('authentication.signup', '/signup', async (ctx) => {
             mail: info.mail,
             password: hash
         });
+
+        const expirationSeconds = 60 * 60 * 6;
+        const privateKey = process.env.JWT_SECRET;
+        var token = jwt.sign(
+            { scope : ["user"] },
+            privateKey,
+            { subject: user.id.toString() },
+            { expiresIn: expirationSeconds }
+        );
         ctx.body = {
             username: user.username,
             mail: user.mail,
+            access_token: token,
+            token_type: "Bearer",
+            expires_in: expirationSeconds,
         };
         ctx.status = 201;
     } catch (error){
-        ctx.body = error;
+        ctx.body = error.errors[0];
         ctx.status = 400;
     }
 });
@@ -42,6 +59,7 @@ router.post('authentication.login', '/login', async (ctx) => {
     } catch (error){
         ctx.body = error;
         ctx.status = 400;
+        return
     }
     if (!user){
         ctx.body = {message: `Usuario con el email ${info.mail} no existe`};

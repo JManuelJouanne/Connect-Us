@@ -61,7 +61,7 @@ router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) =
         if (game.friend === 1){
             await game.update({friend:2});
             const player = await games.create_player(ctx.request.body.userId, ctx.params.gameId);
-            ctx.body = player;
+            ctx.body = {player: player, game: game};
             ctx.status = 200;
         } else {
             ctx.body = {message: "Ya hay dos jugadores en la partida"};
@@ -83,8 +83,7 @@ router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
             ctx.body = {player: player, game: game[0]};
             ctx.status = 200;
         } else {
-            const game = await games.create_game(ctx.request.body.userId, 0);
-            const player = await games.create_player(ctx.request.body.userId, game.id);
+            const { game, player } = await games.create_game(ctx.request.body.userId, 0);
             ctx.body = {player: player, game: game};
             ctx.status = 200;
         }

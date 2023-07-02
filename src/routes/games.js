@@ -31,8 +31,8 @@ router.get('game.show', '/:id', authUtils.checkUser, async (ctx) => {
 //crear un nuevo game con amigo
 router.post('friend_game.create', '/', authUtils.checkUser, async (ctx) => {
     try {
-        const game = await games.create_game(ctx.request.body.userId, 1);
-        ctx.body = game;
+        const { game, player } = await games.create_game(ctx.request.body.userId, 1);
+        ctx.body = {player: player, game: game};
         ctx.status = 200;
     } catch (error){
         ctx.body = error;

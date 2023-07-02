@@ -12,7 +12,7 @@ async function create_game(user_id, friend) {
     const n_player = Math.floor(Math.random() * 2) + 1;
     const player = await Player.create({userId:user_id, gameId:game.id, number:n_player});
     console.log(player.dataValues);
-    return game;
+    return {game, player};
 }
 
 //crear jugador

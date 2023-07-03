@@ -1,4 +1,4 @@
-const { Game, Cell } = require('./../models');
+const { Game, Cell, User, Player } = require('./../models');
 
 //comprobar turno
 async function checkTurn(gameId, player) {
@@ -79,21 +79,23 @@ async function checkWinner(gameId) {
 //cambiar el turno
 async function changeTurn(gameId) {
     const game = await Game.findByPk(gameId);
-    if (game.winner !== null){
-        await game.update({turn: 0});
-    } else if (game.turn === 1){
+    if (game.turn === 1){
         await game.update({turn: 2});
     } else if (game.turn === 2){
         await game.update({turn: 1});
     }
-    return;
+    const player = await Player.findAll({where:{gameId:gameId, number:game.turn}});
+    const user = await User.findByPk(player[0].userId);
+    return user;
 }
 
 //game is finished
 async function finishGame(gameId, winner) {
     const game = await Game.findByPk(gameId);
     await game.update({winner: winner});
-    return game;
+    const player = await Player.findAll({where:{gameId:gameId, number:winner}});
+    const user = await User.findByPk(player[0].userId);
+    return user;
 }
 
 function imprimir_matriz(matrix){

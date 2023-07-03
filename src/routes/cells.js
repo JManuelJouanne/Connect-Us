@@ -30,18 +30,18 @@ router.patch('cell.update', '/:gameId/:column', authUtils.checkUser, async (ctx)
         } else {
             const put_token = await move.putTokenInColumn(n_column, gameId, player);
             if (put_token === false){
-                ctx.body = {message: "Columna llena"};
+                ctx.body = {message: "Esa columna está llena"};
                 ctx.status = 400;
             } else {
                 ctx.status = 200;
                 const winner = await move.checkWinner(gameId);
                 if (winner === 0) {
-                    await move.changeTurn(gameId);
-                    ctx.body = {cell: put_token.dataValues, message: "No Ganador"};
+                    const user = await move.changeTurn(gameId);
+                    ctx.body = {cell: put_token.dataValues, message: `Es el turno de ${user.username}`};
                     console.log(ctx.body);
                 } else {
-                    await move.finishGame(gameId, winner);
-                    ctx.body = {cell: put_token.dataValues, message: "Ganador"};
+                    const user = await move.finishGame(gameId, winner);
+                    ctx.body = {cell: put_token.dataValues, message: `Ganó ${user.username}!!!`};
                 }
             }
         }

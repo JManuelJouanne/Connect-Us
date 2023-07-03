@@ -7,7 +7,7 @@ dotenv.config();
 
 const router = new Router();
 
-router.get('users.list', '/', authUtils.checkAdmin, async (ctx) => {
+router.get('users.list', '/all', authUtils.checkAdmin, async (ctx) => {
 //router.get('users.list', '/', async (ctx) => {
     try {
         const users = await ctx.orm.User.findAll();
@@ -19,7 +19,7 @@ router.get('users.list', '/', authUtils.checkAdmin, async (ctx) => {
     }
 });
 
-router.get('user.show', '/', authUtils.checkUser, async (ctx) => {
+router.get('user.show', '/me', authUtils.checkUser, async (ctx) => {
     try {
         const secret = process.env.JWT_SECRET;
         const token = ctx.request.header.authorization.split(' ')[1];

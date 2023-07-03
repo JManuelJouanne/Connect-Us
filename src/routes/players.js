@@ -1,6 +1,10 @@
 const Router = require('koa-router');
 const games = require('./../modules/games');
 const authUtils = require('../modules/auth');
+var jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const router = new Router();
 
@@ -57,10 +61,15 @@ router.get('players.show', '/game/:gameId', authUtils.checkUser, async (ctx) => 
 //unirse a partida con amigo
 router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) => {
     try {
+        const secret = process.env.JWT_SECRET;
+        const token = ctx.request.header.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, secret);
+        const userId = parseInt(decoded.sub, 10);
+
         const game = await ctx.orm.Game.findByPk(ctx.params.gameId);
         if (game.friend === 1){
             await game.update({friend:2});
-            const player = await games.create_player(ctx.request.body.userId, ctx.params.gameId);
+            const player = await games.create_player(userId, ctx.params.gameId);
             ctx.body = {player: player, game: game};
             ctx.status = 200;
         } else {
@@ -76,14 +85,19 @@ router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) =
 //unirse a partida random
 router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
     try {
+        const secret = process.env.JWT_SECRET;
+        const token = ctx.request.header.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, secret);
+        const userId = parseInt(decoded.sub, 10);
+
         const game = await ctx.orm.Game.findAll({where:{friend:0}});
         if (game.length > 0){
             await game[0].update({friend:2});
-            const player = await games.create_player(ctx.request.body.userId, game[0].id);
+            const player = await games.create_player(userId, game[0].id);
             ctx.body = {player: player, game: game[0]};
             ctx.status = 200;
         } else {
-            const { game, player } = await games.create_game(ctx.request.body.userId, 0);
+            const { game, player } = await games.create_game(userId, 0);
             ctx.body = {player: player, game: game};
             ctx.status = 200;
         }

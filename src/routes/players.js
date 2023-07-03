@@ -61,7 +61,7 @@ router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) =
         if (game.friend === 1){
             await game.update({friend:2});
             const player = await games.create_player(ctx.request.body.userId, ctx.params.gameId);
-            ctx.body = {player: player, game: game};
+            ctx.body = {game: game, player: player};
             ctx.status = 200;
         } else {
             ctx.body = {message: "Ya hay dos jugadores en la partida"};

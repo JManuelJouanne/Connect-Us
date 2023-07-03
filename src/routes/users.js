@@ -1,5 +1,9 @@
 const Router = require('koa-router');
 const authUtils = require('../modules/auth');
+var jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const router = new Router();
 
@@ -15,9 +19,14 @@ router.get('users.list', '/', authUtils.checkAdmin, async (ctx) => {
     }
 });
 
-router.get('user.show', '/:id', authUtils.checkAdmin, async (ctx) => {
+router.get('user.show', '/', authUtils.checkUser, async (ctx) => {
     try {
-        const user = await ctx.orm.User.findByPk(ctx.params.id);
+        const secret = process.env.JWT_SECRET;
+        const token = ctx.request.header.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, secret);
+        const userId = parseInt(decoded.sub, 10);
+
+        const user = await ctx.orm.User.findByPk(userId);
         //const user = await ctx.orm.User.findOne({where:{id:ctx.params.id}});
         ctx.body = user;
         ctx.status = 200;

@@ -58,6 +58,22 @@ router.get('players.show', '/game/:gameId', authUtils.checkUser, async (ctx) => 
     }
 });
 
+//nombre del usuario que comienza
+router.get('players.show', '/start/:gameId', authUtils.checkUser, async (ctx) => {
+    try {
+        const players = await ctx.orm.Player.findAll({where:{
+            gameId:ctx.params.gameId,
+            number:1
+        }});
+        const user = await ctx.orm.User.findByPk(players[0].userId);
+        ctx.body = {message: `Comienza ${user.username}}`};
+        ctx.status = 200;
+    } catch (error){
+        ctx.body = error;
+        ctx.status = 400;
+    }
+});
+
 //unirse a partida con amigo
 router.post('friend_player.join', '/:gameId', authUtils.checkUser, async (ctx) => {
     try {

@@ -28,7 +28,7 @@ router.get('user.show', '/me', authUtils.checkUser, async (ctx) => {
 
         const user = await ctx.orm.User.findByPk(userId);
         //const user = await ctx.orm.User.findOne({where:{id:ctx.params.id}});
-        ctx.body = user;
+        ctx.body = {id: user.id, username: user.username, mail: user.mail};
         ctx.status = 200;
     } catch (error){
         ctx.body = error;

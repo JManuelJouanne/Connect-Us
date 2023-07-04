@@ -47,8 +47,8 @@ socketIO.on('connection', (socket) => {
         let response = await play(data);
         console.log(response);
 
-        socketIO.broadcast.emit('reponse', {response});
-        socketIO.emit('response', {response});
+        socket.broadcast.emit('response', { response });
+        socket.emit('response', { response });
     }); 
 
     socket.on('disconnect', () => {
@@ -57,4 +57,4 @@ socketIO.on('connection', (socket) => {
 });
 
 
-module.exports = app;
+module.exports = { app, server };

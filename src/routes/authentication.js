@@ -48,6 +48,7 @@ router.post('authentication.signup', '/signup', async (ctx) => {
         ctx.status = 201;
     } catch (error){
         ctx.body = error.errors[0];
+        console.log(error);
         ctx.status = 400;
     }
 });

@@ -63,13 +63,17 @@ router.get('players.show', '/game/:gameId', authUtils.checkUser, async (ctx) => 
 //nombre del usuario que comienza
 router.get('players.show', '/start/:gameId', authUtils.checkUser, async (ctx) => {
     try {
+        const game = await ctx.orm.Game.findByPk(ctx.params.gameId);
         const players = await ctx.orm.Player.findAll({where:{
             gameId:ctx.params.gameId,
-            number:1
+            number:game.turn
         }});
         console.log(players);
         const user = await ctx.orm.User.findByPk(players[0].userId);
-        ctx.body = {message: `Comienza ${user.username}`};
+        ctx.body = {
+            message: `Es el turno de ${user.username}`,
+            turn: game.turn
+        };
         ctx.status = 200;
     } catch (error){
         ctx.body = error;
@@ -108,35 +112,21 @@ router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
         const token = ctx.request.header.authorization.split(' ')[1];
         const decoded = jwt.verify(token, secret);
         const userId = parseInt(decoded.sub, 10);
-        let ready = false;
 
-        const juegos = await ctx.orm.Game.findAll({where:{friend:0}});
-
-        if (juegos.length > 0){
-            for (let i = 0; i < juegos.length; i++) {
-                const partidas = await ctx.orm.Player.findAll({ 
-                    where: { 
-                        gameId: juegos[i].id, 
-                        userId: { [Op.not]: userId },
-                    } 
-                    });
-                if (partidas.length > 0 && ready === false){
-                    await juegos[i].update({friend:2});
-                    ctx.body = {player: partidas[0], game: juegos[i]};
-                    ctx.status = 200;
-                    ready = true;
-                }
+        const partidas = await ctx.orm.Game.findAll({where:{friend:0}});
+        for (let i = 0; i < partidas.length; i++){
+            const plyr = await ctx.orm.Player.findAll({where:{gameId:partidas[i].id}});
+            if (plyr[0].userId !== userId){
+                await partidas[0].update({friend:2});
+                const player = await games.create_player(userId, partidas[0].id);
+                ctx.body = {player: player, game: partidas[i]};
+                ctx.status = 200;
+                return;
             }
-            if (ready === false) {
-            const { game, player } = await games.create_game(userId, 0);
-            ctx.body = {player: player, game: game};
-            ctx.status = 200;
-            }
-        } else {
-            const { game, player } = await games.create_game(userId, 0);
-            ctx.body = {player: player, game: game};
-            ctx.status = 200;
         }
+        const { game, player } = await games.create_game(userId, 0);
+        ctx.body = {player: player, game: game};
+        ctx.status = 200;
     } catch (error){
         ctx.body = error;
         ctx.status = 400;

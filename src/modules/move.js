@@ -110,34 +110,27 @@ async function play(data) {
     const gameId = data.gameId;
     const n_column = data.column;
     const player = data.player;
-    const result = {};
+    let result = {};
 
-    const turn = await move.checkTurn(gameId, player);
+    const turn = await checkTurn(gameId, player);
     if (turn === false){
         result = {message: "No es tu turno"};
     } else {
-        const put_token = await move.putTokenInColumn(n_column, gameId, player);
+        const put_token = await putTokenInColumn(n_column, gameId, player);
         if (put_token === false){
             result = {message: "Esa columna está llena"};
         } else {
-            const winner = await move.checkWinner(gameId);
+            const winner = await checkWinner(gameId);
             if (winner === 0) {
-                const user = await move.changeTurn(gameId);
-                result = {cell: put_token.dataValues, message: `Es el turno de ${user.username}`};
+                const user = await changeTurn(gameId);
+                result = {cell: put_token, message: `Es el turno de ${user.username}`};
             } else {
-                const user = await move.finishGame(gameId, winner);
-                result = {cell: put_token.dataValues, message: `Ganó ${user.username}!!!`};
+                const user = await finishGame(gameId, winner);
+                result = {cell: put_token, message: `Ganó ${user.username}!!!`};
             }
         }
     }
     return result;
 };
 
-module.exports = {
-    checkTurn: checkTurn,
-    putTokenInColumn: putTokenInColumn,
-    checkWinner: checkWinner,
-    changeTurn: changeTurn,
-    finishGame: finishGame,
-    play: play
-}
+module.exports = play

@@ -67,8 +67,9 @@ router.get('players.show', '/start/:gameId', authUtils.checkUser, async (ctx) =>
             gameId:ctx.params.gameId,
             number:1
         }});
+        console.log(players);
         const user = await ctx.orm.User.findByPk(players[0].userId);
-        ctx.body = {message: `Comienza ${user.username}}`};
+        ctx.body = {message: `Comienza ${user.username}`};
         ctx.status = 200;
     } catch (error){
         ctx.body = error;

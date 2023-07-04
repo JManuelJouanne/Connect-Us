@@ -105,10 +105,39 @@ function imprimir_matriz(matrix){
     }
 }
 
+//jugada, poner ficha en una columna
+async function play(data) {
+    const gameId = data.gameId;
+    const n_column = data.column;
+    const player = data.player;
+    const result = {};
+
+    const turn = await move.checkTurn(gameId, player);
+    if (turn === false){
+        result = {message: "No es tu turno"};
+    } else {
+        const put_token = await move.putTokenInColumn(n_column, gameId, player);
+        if (put_token === false){
+            result = {message: "Esa columna está llena"};
+        } else {
+            const winner = await move.checkWinner(gameId);
+            if (winner === 0) {
+                const user = await move.changeTurn(gameId);
+                result = {cell: put_token.dataValues, message: `Es el turno de ${user.username}`};
+            } else {
+                const user = await move.finishGame(gameId, winner);
+                result = {cell: put_token.dataValues, message: `Ganó ${user.username}!!!`};
+            }
+        }
+    }
+    return result;
+};
+
 module.exports = {
     checkTurn: checkTurn,
     putTokenInColumn: putTokenInColumn,
     checkWinner: checkWinner,
     changeTurn: changeTurn,
-    finishGame: finishGame
+    finishGame: finishGame,
+    play: play
 }

@@ -33,7 +33,6 @@ router.get('player.show', '/:id', authUtils.checkUser, async (ctx) => {
         ctx.body = error;
         ctx.status = 400;
     }
-
 });
 
 //lista de los players de un usuario

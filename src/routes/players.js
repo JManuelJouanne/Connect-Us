@@ -120,10 +120,7 @@ router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
                     } 
                     });
                 if (partidas.length > 0 && ready === false){
-                    console.log("partidas---");
-                    console.log(partidas);
                     await juegos[i].update({friend:2});
-                    console.log(juegos);
                     ctx.body = {player: partidas[0], game: juegos[i]};
                     ctx.status = 200;
                     ready = true;

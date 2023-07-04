@@ -3,6 +3,8 @@ const games = require('./../modules/games');
 const authUtils = require('../modules/auth');
 var jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const { Op } = require('sequelize');
+
 
 dotenv.config();
 
@@ -105,13 +107,33 @@ router.post('player.join', '/', authUtils.checkUser, async (ctx) => {
         const token = ctx.request.header.authorization.split(' ')[1];
         const decoded = jwt.verify(token, secret);
         const userId = parseInt(decoded.sub, 10);
+        let ready = false;
 
-        const game = await ctx.orm.Game.findAll({where:{friend:0}});
-        if (game.length > 0){
-            await game[0].update({friend:2});
-            const player = await games.create_player(userId, game[0].id);
-            ctx.body = {player: player, game: game[0]};
+        const juegos = await ctx.orm.Game.findAll({where:{friend:0}});
+
+        if (juegos.length > 0){
+            for (let i = 0; i < juegos.length; i++) {
+                const partidas = await ctx.orm.Player.findAll({ 
+                    where: { 
+                        gameId: juegos[i].id, 
+                        userId: { [Op.not]: userId },
+                    } 
+                    });
+                if (partidas.length > 0 && ready === false){
+                    console.log("partidas---");
+                    console.log(partidas);
+                    await juegos[i].update({friend:2});
+                    console.log(juegos);
+                    ctx.body = {player: partidas[0], game: juegos[i]};
+                    ctx.status = 200;
+                    ready = true;
+                }
+            }
+            if (ready === false) {
+            const { game, player } = await games.create_game(userId, 0);
+            ctx.body = {player: player, game: game};
             ctx.status = 200;
+            }
         } else {
             const { game, player } = await games.create_game(userId, 0);
             ctx.body = {player: player, game: game};

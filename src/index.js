@@ -1,4 +1,4 @@
-const app = require('./app');
+const { app, server } = require('./app');
 const db = require('./models');
 const dotenv = require('dotenv');
 //const express = require('express');
@@ -11,7 +11,7 @@ db.sequelize
   .authenticate()
   .then(() => {
     console.log('Connection to the database has been established successfully.');
-    app.listen(PORT, (err) => {
+    server.listen(PORT, (err) => {
       if (err) {
         return console.error('Failed', err);
       }

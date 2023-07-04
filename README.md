@@ -42,7 +42,7 @@ Reemplazando `tu_usuario_de_postgres` y `tu_contraseña_de_postgres` por los dat
 
 Luego, se debe crear la base de datos con el siguiente comando
 ````
-cratedb connectus_development
+createdb connectus_development
 ````
 A continuación se corren las migraciones
 ````

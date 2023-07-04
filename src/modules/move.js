@@ -1,4 +1,4 @@
-const { Game, Cell } = require('./../models');
+const { Game, Cell, User, Player } = require('./../models');
 
 //comprobar turno
 async function checkTurn(gameId, player) {
@@ -79,21 +79,23 @@ async function checkWinner(gameId) {
 //cambiar el turno
 async function changeTurn(gameId) {
     const game = await Game.findByPk(gameId);
-    if (game.winner !== null){
-        await game.update({turn: 0});
-    } else if (game.turn === 1){
+    if (game.turn === 1){
         await game.update({turn: 2});
     } else if (game.turn === 2){
         await game.update({turn: 1});
     }
-    return;
+    const player = await Player.findAll({where:{gameId:gameId, number:game.turn}});
+    const user = await User.findByPk(player[0].userId);
+    return user;
 }
 
 //game is finished
 async function finishGame(gameId, winner) {
     const game = await Game.findByPk(gameId);
     await game.update({winner: winner});
-    return game;
+    const player = await Player.findAll({where:{gameId:gameId, number:winner}});
+    const user = await User.findByPk(player[0].userId);
+    return user;
 }
 
 function imprimir_matriz(matrix){
@@ -103,10 +105,32 @@ function imprimir_matriz(matrix){
     }
 }
 
-module.exports = {
-    checkTurn: checkTurn,
-    putTokenInColumn: putTokenInColumn,
-    checkWinner: checkWinner,
-    changeTurn: changeTurn,
-    finishGame: finishGame
-}
+//jugada, poner ficha en una columna
+async function play(data) {
+    const gameId = data.gameId;
+    const n_column = data.column;
+    const player = data.player;
+    let result = {};
+
+    const turn = await checkTurn(gameId, player);
+    if (turn === false){
+        result = {message: "No es tu turno"};
+    } else {
+        const put_token = await putTokenInColumn(n_column, gameId, player);
+        if (put_token === false){
+            result = {message: "Esa columna está llena"};
+        } else {
+            const winner = await checkWinner(gameId);
+            if (winner === 0) {
+                const user = await changeTurn(gameId);
+                result = {cell: put_token, message: `Es el turno de ${user.username}`};
+            } else {
+                const user = await finishGame(gameId, winner);
+                result = {cell: put_token, message: `Ganó ${user.username}!!!`};
+            }
+        }
+    }
+    return result;
+};
+
+module.exports = play

@@ -40,6 +40,7 @@ router.post('authentication.signup', '/signup', async (ctx) => {
         ctx.body = {
             username: user.username,
             mail: user.mail,
+            user: user.id,
             access_token: token,
             token_type: "Bearer",
             expires_in: expirationSeconds,
@@ -47,6 +48,7 @@ router.post('authentication.signup', '/signup', async (ctx) => {
         ctx.status = 201;
     } catch (error){
         ctx.body = error.errors[0];
+        console.log(error);
         ctx.status = 400;
     }
 });
@@ -80,6 +82,7 @@ router.post('authentication.login', '/login', async (ctx) => {
         ctx.body = {
             username: user.username,
             mail: user.mail,
+            user: user.id,
             access_token: token,
             token_type: "Bearer",
             expires_in: expirationSeconds,

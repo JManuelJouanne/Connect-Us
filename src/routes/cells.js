@@ -16,40 +16,5 @@ router.get('cells.show', '/:gameId', authUtils.checkUser, async (ctx) => {
     }
 });
 
-//jugada, poner ficha en una columna
-router.patch('cell.update', '/:gameId/:column', authUtils.checkUser, async (ctx) => {
-    try {
-        const gameId = ctx.params.gameId;
-        const n_column = ctx.params.column;
-        const player = ctx.request.body.player;
 
-        const turn = await move.checkTurn(gameId, player);
-        if (turn === false){
-            ctx.body = {message: "No es tu turno"};
-            ctx.status = 400;
-        } else {
-            const put_token = await move.putTokenInColumn(n_column, gameId, player);
-            if (put_token === false){
-                ctx.body = {message: "Columna llena"};
-                ctx.status = 400;
-            } else {
-                ctx.status = 200;
-                const winner = await move.checkWinner(gameId);
-                if (winner === 0) {
-                    await move.changeTurn(gameId);
-                    ctx.body = {cell: put_token.dataValues, message: "No Ganador"};
-                    console.log(ctx.body);
-                } else {
-                    await move.finishGame(gameId, winner);
-                    ctx.body = {cell: put_token.dataValues, message: "Ganador"};
-                }
-            }
-        }
-    } catch (error) {
-      ctx.body = error;
-      ctx.status = 400;
-    }
-});
-
-
-module.exports = router;
+module.exports = router

@@ -1,6 +1,10 @@
 const Router = require('koa-router');
 const games = require('./../modules/games');
 const authUtils = require('../modules/auth');
+var jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const router = new Router();
 
@@ -31,8 +35,13 @@ router.get('game.show', '/:id', authUtils.checkUser, async (ctx) => {
 //crear un nuevo game con amigo
 router.post('friend_game.create', '/', authUtils.checkUser, async (ctx) => {
     try {
-        const game = await games.create_game(ctx.request.body.userId, 1);
-        ctx.body = game;
+        const secret = process.env.JWT_SECRET;
+        const token = ctx.request.header.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, secret);
+        const userId = parseInt(decoded.sub, 10);
+
+        const { game, player } = await games.create_game(userId, 1);
+        ctx.body = {player: player, game: game};
         ctx.status = 200;
     } catch (error){
         ctx.body = error;
@@ -60,30 +69,5 @@ router.delete('game.delete', '/:id', authUtils.checkUser, async (ctx) => {
     }
 });
 
-//list of games with only one player
-router.get('games.show', '/available/game/:userId', async (ctx) => {
-    let games_with_one_player = [];
-    try {
-      const games = await ctx.orm.Game.findAll();
-      for (let i = 0; i < games.length; i++) {
-        const players = await ctx.orm.Player.findAll({ where: { gameId: games[i].id } });
-        if (players.length === 1 && players[0].userId !== ctx.params.userId) {
-          games_with_one_player.push(games[i]);
-        }
-      }
-      current_game = games_with_one_player[0];
-      for (let i = 0; i < games_with_one_player.length; i++) {
-            if (games_with_one_player[i].id > current_game.id) {
-                current_game = games_with_one_player[i];
-            }
-      }
-      ctx.body = current_game;
-      ctx.status = 200;
-    } catch (error) {
-      ctx.body = error;
-      ctx.status = 400;
-    }
-  });
-  
 
 module.exports = router;

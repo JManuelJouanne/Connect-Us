@@ -1,7 +1,7 @@
 # grupo-14-backend ConnectUs
 
-Se trabajó en toda la lógica del juego. Se dejaron implementados todos los métodos necesarios para el funcionamiento de la aplicación.
-El juego es un Conecta 4, con un tablero de 7x9 y con una temática de AmongUs. Se puede jugar de a dos jugadores, cada uno con un color diferente. El objetivo del juego es lograr conectar 4 fichas del mismo color en cualquier dirección (horizontal, vertical o diagonal).
+
+Este juego es un Conecta 4, con un tablero de 7x9 y con una temática de AmongUs. Se puede jugar de a dos jugadores, cada uno con un color diferente. El objetivo del juego es lograr conectar 4 fichas del mismo color en cualquier dirección (horizontal, vertical o diagonal).
 
 ## Base de Datos
 
@@ -9,7 +9,7 @@ El juego es un Conecta 4, con un tablero de 7x9 y con una temática de AmongUs. 
 Nuestro modelo ER conciste en cuatro Entidades
 * `User` username, mail, password
     * Tiene varios players (Uno por cada partida del usuario)
-* `Game` turn, winner
+* `Game` turn, winner, friend (0:partida aleatoria, 1:partida con amigo)
     * Tiene dos players (Uno contra uno)
     * Tiene varias celdas (7 x 9)
 * `Player` number (1 o 2), userId, gameId
@@ -37,6 +37,9 @@ DB_USERNAME = tu_usuario_de_postgres
 DB_PASSWORD = tu_contraseña_de_postgres
 DB_NAME = connectus
 DB_HOST = 'localhost'
+
+PORT = 3000
+JWT_SECRET = secret
 `````
 Reemplazando `tu_usuario_de_postgres` y `tu_contraseña_de_postgres` por los datos correspondientes.
 
@@ -64,25 +67,34 @@ Los seeders contienen instancias de todas las tablas, inculyendo dos usuarios, d
 * `pg` v8.11.0: controlador de PostgreSQL para Node.js.
 * `sequelize` v6.31.1: ORM para Node.js que facilita la interacción con PostgreSQL.
 * `sequelize-cli` v6.6.0:  interfaz de línea de comandos para Sequelize.
+* `koa-cors` v2.2.1: middleware para Koa que permite el acceso a recursos ubicados en otro dominio.
+* `koa-jwt` v4.0.1: middleware para Koa que permite la autenticación de usuarios a través de webtokens.
+* `jsonwebtoken` v8.5.1: implementación de JSON Web Tokens para Node.js.
+* `bcrypt` v5.0.1: librería para el hashing de contraseñas.
+* `socket.io` v4.3.2: librería para la comunicación bidireccional en tiempo real entre clientes y servidores web.
 
-devDependencies
+### devDependencies
 * `eslint` v8.41.0: ayuda a mantener un código limpio y coherente en tu proyecto.
 
 Instalar las dependencias con el comando
 ````
 yarn
 ````
-o 
-````
-npm install
-````
+
 
 ## API
+La API usa el puerto 3000. Se usan webtockens para la autenticación de usuarios. Para poder acceder a las rutas de la API se debe enviar un webtoken en el header de la petición con el siguiente formato
+````
+"Authorization": "Bearer <token>"
+````
+Donde `<token>` es el token que se obtiene al iniciar sesión con un usuario. Todas las rutas de la API (exepto las de log in y sign up) están protegidas y requieren un token para poder acceder a ellas. Hay rutas que están habilitadas solo para cuentas admin (por razones de seguridad), sin embargo, no se implementó la lógica para crear ese tipo de cuentas, pero los endpoints quedaron hecho igualmente.
+
+
 ### Users
 #### Crear un usuario
 Se crea el usuario con el metodo POST en la siguiente ruta
 ````
-http://localhost:3000/users/signup
+http://localhost:3000/signup
 ````
 Por ejemplo, se podría crear con el body
 ````
@@ -92,26 +104,26 @@ Por ejemplo, se podría crear con el body
     "password": "alexis123"
 }
 ````
-Retorna un json con el usuario creado.
+Retorna un json con el usuario creado (sin la contraseña) y con un token que se va a guardar en localstorage para acceder a otras rutas.
 
 #### Obtener lista de usuarios
 Se obtiene la lista de usuarios con el metodo GET en la siguiente ruta
 ````
-http://localhost:3000/users
+http://localhost:3000/users/all
 ````
 retorna un json por cada usuario.
 
-#### Obtener un usuario
-Se obtiene un usuario con el metodo GET en la ruta `http://localhost:3000/users/:id` especificando el id del usuario que se quiere obtener. Por ejemplo, para obtener el usuario con id 3 se debe hacer la siguiente petición
+#### Obtener usuario conectado
+Se obtiene el usuario conectado en el lado cliente con el metodo GET en la ruta
 ````
 http://localhost:3000/users/3
 ````
-Retorna un json con el usuario.
+El id se obtiene a través del token. Retorna un json con el usuario.
 
 #### Iniciar sesión con un usuario
 Se inicia sesión con el metodo POST en la siguiente ruta
 ````
-http://localhost:3000/users/login
+http://localhost:3000/login
 ````
 Los parámetros se mandan en el body de la petición. Por ejemplo, se podría iniciar sesión con el body.
 ````
@@ -120,14 +132,14 @@ Los parámetros se mandan en el body de la petición. Por ejemplo, se podría in
     "password": "alexis123"
 }
 ````
-En caso de que el usuario no exista o la contraseña sea incorrecta, se obtendrá un mensaje de error. En caso de que el usuario exista y la contraseña sea correcta, se obtendrá un json con el usuario.
+En caso de que el usuario no exista o la contraseña sea incorrecta, se obtendrá un mensaje de error. En caso de que el usuario exista y la contraseña sea correcta, se obtendrá un json con el usuario y el token que queda seteado en local storage.
 
 #### Borrar usuario
 Se borra un usuario con el metodo DELETE en la ruta `http://localhost:3000/users/:id` especificando el id del usuario que se quiere borrar. Por ejemplo, para borrar el usuario con id 3 se debe hacer la siguiente petición
 ````
 http://localhost:3000/users/3
 ````
-Retorna un json con el mensaje 'Usuario Eliminado'.
+Retorna un json con el mensaje 'Usuario Eliminado'. Habilitado solo para cuentas admin.
 
 
 
@@ -137,7 +149,7 @@ Se obtiene la lista de todas las partidas con el metodo GET en la siguiente ruta
 ````
 http://localhost:3000/games
 ````
-Retorna un json con todas las partidas.
+Retorna un json con todas las partidas. Habilitado solo para cuentas admin.
 
 #### Obtener una partida especifica
 Se obtiene una partida con el metodo GET en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere obtener. Por ejemplo, para obtener la partida con id 2 se debe hacer la siguiente petición
@@ -146,26 +158,12 @@ http://localhost:3000/games/2
 ````
 Retorna un json con la partida.
 
-#### Crear una partida
-Se crea la partida con el metodo POST en la siguiente ruta
+#### Crear una partida con un amigo
+Hay tres formas de ingresar a una partida. La primera de ellas es creando una partida para jugarla con un amigo. Este tipo de partidas se crea con el metodo POST en la siguiente ruta
 ````
 http://localhost:3000/games
 ````
-Por ejemplo, se podría crear con el body
-````
-{
-    "userId": 1
-}
-````
-Este endpoint, primero crea una partida con los siguientes atributos
-````
-{
-    "winner": null,
-    "turn": 1
-}
-````
-Luego crea todas las celdas del tablero en su respectiva tabla, con el status igual a 0. Por último, crea un player con el id del usuario que creó la partida y el id de la partida creada. Se define aleatoriamente si el usuario va a ser el jugador 1 o el jugador 2. (El otro jugador se une después a la partida)
-Retorna un json con la partida creada.
+El id del usuario se obtiene del token y se crea una partida con atributos por defecto, se crean las 63 celdas y el player que asocia al usuario con la partida. El numero de jugador es aleatorio. Retorna un json con el player y el game.
 
 #### Borrar una partida
 Se borra una partida con el metodo DELETE en la ruta `http://localhost:3000/games/:id` especificando el id de la partida que se quiere borrar. También se borran los players y las celdas asociadas a la partida. Por ejemplo, para borrar la partida con id 2 se debe hacer la siguiente petición
@@ -189,33 +187,27 @@ http://localhost:3000/players/3
 ````
 Retorna un json con el player.
 
-#### Obtener todos los players de un usuario
-Se obtiene la lista de todos los players de un usuario con el metodo GET en la ruta `http://localhost:3000/players/user/:userId` especificando el id del usuario del que se quieren obtener los players. Por ejemplo, para obtener los players del usuario con id 1 se debe hacer la siguiente petición
-````
-http://localhost:3000/players/user/1
-````
-Retorna un json por cada player del usuario.
+Hay otros endpoints que retornan players, de un mismo usuario o de un mismo juego, pero no se usan en el juego por lo que no se van a explicar.
 
-#### Obtener todos los players de una partida
-Se obtiene la lista de todos los players de una partida con el metodo GET en la ruta `http://localhost:3000/players/game/:gameId` especificando el id de la partida de la que se quieren obtener los players. Por ejemplo, para obtener los players de la partida con id 1 se debe hacer la siguiente petición
-````
-http://localhost:3000/players/game/1
-````
-Retorna un json por cada player de la partida.
+#### Nombre del usuario que comienza la partida
+Para setear el juego al comienzo, se accede a este endpoint que retorna un mensaje diciendo qué jugador comienza. Se accede con `http://localhost:3000/players/start/:gameId`. Por ejemplo, para obtener el jugador que comienza la partida con id 1 se debe hacer la siguiente petición.
+`````
+http://localhost:3000/players/start/1
+`````
 
-#### Unirse a partida existente (Crear un player)
-Se crea el player con el metodo POST en la siguiente ruta `http://localhost:3000/players/:gameId`. Por ejemplo, se podría crear con el body (Primero hay que crear un game con id 3) en la ruta
+#### Unirse a partida con un amigo
+Una segunda forma de ingresar a una partida, es uniéndose a una partida creada por un amigo. El amigo que creó la partida debe enviar el id de la partida por otro medio, y el usuario que se quiere unir ingresa el id como input. Se crea el player con el metodo POST en la siguiente ruta `http://localhost:3000/players/:gameId`. Por ejemplo, se podría crear con la ruta
 `````
 http://localhost:3000/players/3
 `````
-con el body
-````
-{
-    "userId": 1
-}
-````
-Esto crea un player con el id del usuario que se especifica en el body y el id de la partida que se especifica en la ruta. El número de jugador lo obtiene viendo el número del otro jugador de la partida que se eligue aleatoriamente.
-Retorna un json con el player creado.
+el id del usuario se obtiene del token. Retorna un json con el player creado y el game al que se unió.
+
+#### Unirse a una partida aleatoria
+Una tercera forma de ingresar a una partida, es uniéndose a una partida aleatoria. Se crea el player con el metodo POST en la siguiente ruta 
+`````
+http://localhost:3000/players`
+`````
+Primero se van a buscar partidas aleatorias que estén esperando un jugador. En caso de que haya alguna, se va a crear el player y en caso de que no, se va a crear el game y despúes el player. Retorna un json con el player creado y el game.
 
 #### Eliminar un player
 Se elimina un player con el metodo DELETE en la ruta `http://localhost:3000/players/:id` especificando el id del player que se quiere eliminar. Por ejemplo, para eliminar el player con id 4 se debe hacer la siguiente petición
@@ -233,15 +225,16 @@ http://localhost:3000/cells/1
 ````
 Retorna un json por cada celda de la partida.
 
-#### Colocar Ficha en una columna (Actualizar una celda)
-Se actualiza una celda con el metodo PATCH especificando el id de la partida y la columna en la que se quiere colocar la ficha con una ruta tipo `http://localhost:3000/cells/:gameId/:column`. Por ejemplo, para colocar una ficha en la columna 9 de la partida 1 se debe hacer la siguiente petición
-````
-http://localhost:3000/cells/1/9
-````
-En el body solo va el atributo que se quiere actualizar, en este caso el status. Si la jugada la hace el jugador dos, el body sería
+## Websockets
+Se implemetaron websockets para la parte misma del juego. Cuando un jugador quiere poner una ficha, la solicitud sera mediante una conexión web socket para poder actualizar el tablero del oponente en tiempo real.
+
+#### Colocar una Ficha (Actualizar una celda)
+Se va a enviar un body a través del websocket con los siguientes atributos:
 ````
 {
-    "status": 2
+    "gameId": 1,
+    "player": 2,
+    "column": 3
 }
 ````
 Para este método, el flujo de código es bastante más largo. Se implementaron funciones en la carpeta `modules` para hacer un código más legible. El flujo es el siguiente:
@@ -256,6 +249,10 @@ Para este método, el flujo de código es bastante más largo. Se implementaron 
 Para correr la aplicación se debe ejecute
 ````
 yarn start
+````
+o sino (con nodemon)
+````
+yarn dev
 ````
 
 ## Otros Detalles

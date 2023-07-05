@@ -2,8 +2,8 @@ const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
 async function deploy() {
-    const { stdout: output6 } = await exec("drop");
-  console.log("Installing dependencies...");
+    const { stdout: output6 } = await exec("yarn clean");
+  console.log("Dropping node modules...");
   console.log(output6);
 
 

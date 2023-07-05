@@ -5,6 +5,9 @@
   "type": "commonjs",
   "author": "Grupo 14",
   "license": "MIT",
+  "engines": {
+    "node": "18.15.0"
+  },
   "dependencies": {
     "@koa/cors": "^4.0.0",
     "and": "^0.0.3",

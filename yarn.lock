@@ -2093,7 +2093,7 @@ koa2-swagger-ui@^5.8.0:
     lodash "^4.17.21"
     read-pkg-up "^7.0.1"
 
-koa@^2.13.4, koa@^2.14.2:
+koa@^2.13.4:
   version "2.14.2"
   resolved "https://registry.npmjs.org/koa/-/koa-2.14.2.tgz"
   integrity sha512-VFI2bpJaodz6P7x2uyLiX6RLYpZmOJqNmoCst/Yyd7hQlszyPwG/I9CQJ63nOtKSxpt5M7NH67V6nJL2BwCl7g==

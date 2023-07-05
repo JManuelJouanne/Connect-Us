@@ -3,7 +3,6 @@ const games = require('./../modules/games');
 const authUtils = require('../modules/auth');
 var jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const { Op } = require('sequelize');
 
 
 dotenv.config();

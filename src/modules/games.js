@@ -21,7 +21,7 @@ async function create_player(user_id, game_id) {
     const n_player = (player_1[0].number % 2) + 1;
     const player = await Player.create({userId:user_id, gameId:game_id, number:n_player});
     return player;
-};
+}
 
 module.exports = {
     create_game,

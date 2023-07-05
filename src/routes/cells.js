@@ -1,5 +1,4 @@
 const Router = require('koa-router');
-const move = require('./../modules/move');
 const authUtils = require('../modules/auth');
 
 const router = new Router();

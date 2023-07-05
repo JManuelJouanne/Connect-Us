@@ -131,6 +131,6 @@ async function play(data) {
         }
     }
     return result;
-};
+}
 
 module.exports = play

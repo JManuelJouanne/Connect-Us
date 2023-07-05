@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const PORT = process.env.PORT
+const PORT = 3000
 
 db.sequelize
   .authenticate()

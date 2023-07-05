@@ -5,9 +5,6 @@
   "type": "commonjs",
   "author": "Grupo 14",
   "license": "MIT",
-  "engines": {
-    "node": "18.15.0"
-  },
   "dependencies": {
     "@koa/cors": "^4.0.0",
     "and": "^0.0.3",
@@ -33,11 +30,14 @@
     "swagger2-koa": "^4.0.0"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "deploy": "node start.js",
     "db:migrate": "sequelize db:migrate",
-    "db:seed":"sequelize-cli db:seed:all"
+    "db:seed": "sequelize db:seed:all",
+    "db:drop": "sequelize db:drop",
+    "db:create": "sequelize db:create",
+    "db:reset": "run-s db:drop db:create"
   },
   "devDependencies": {
     "eslint": "^8.41.0"

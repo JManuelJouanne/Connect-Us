@@ -21,8 +21,8 @@
     "koa2-swagger-ui": "^5.8.0",
     "nodemon": "^2.0.22",
     "pg": "^8.11.0",
-    "sequelize": "^6.32.0",
-    "sequelize-cli": "^6.6.0",
+    "sequelize": "^6.32.1",
+    "sequelize-cli": "^6.6.1",
     "socket.io": "^4.7.1",
     "sqlite3": "^5.1.6",
     "swagger-ui-express": "^4.6.3",
@@ -31,7 +31,10 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "deploy": "node start.js",
+    "db:migrate": "sequelize db:migrate",
+    "db:seed":"sequelize-cli db:seed:all"
   },
   "devDependencies": {
     "eslint": "^8.41.0"

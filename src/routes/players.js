@@ -62,17 +62,35 @@ router.get('players.show', '/game/:gameId', authUtils.checkUser, async (ctx) => 
 router.get('players.show', '/start/:gameId', authUtils.checkUser, async (ctx) => {
     try {
         const game = await ctx.orm.Game.findByPk(ctx.params.gameId);
-        const players = await ctx.orm.Player.findAll({where:{
-            gameId:ctx.params.gameId,
-            number:game.turn
-        }});
-        console.log(players);
-        const user = await ctx.orm.User.findByPk(players[0].userId);
-        ctx.body = {
-            message: `Es el turno de ${user.username}`,
-            turn: game.turn
-        };
-        ctx.status = 200;
+        if (game.winner){
+            const players = await ctx.orm.Player.findAll({where:{
+                gameId:ctx.params.gameId,
+                number:game.winner
+            }});
+            const user = await ctx.orm.User.findByPk(players[0].userId);
+
+            ctx.body = {
+                message: `Ganó ${user.username}!!!`,
+                turn: game.turn,
+                winner: game.winner
+            };
+            ctx.status = 200;
+            return;
+        } else {
+            const players = await ctx.orm.Player.findAll({where:{
+                gameId:ctx.params.gameId,
+                number:game.turn
+            }});
+            console.log(players);
+            const user = await ctx.orm.User.findByPk(players[0].userId);
+            ctx.body = {
+                message: `Comienza ${user.username}`,
+                turn: game.turn,
+                winner: game.winner
+            };
+            ctx.status = 200;
+            return;
+        }
     } catch (error){
         ctx.body = error;
         ctx.status = 400;

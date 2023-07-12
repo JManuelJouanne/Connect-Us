@@ -93,6 +93,7 @@ async function changeTurn(gameId) {
 async function finishGame(gameId, winner) {
     const game = await Game.findByPk(gameId);
     await game.update({winner: winner});
+    await game.update({turn: 0});
     const player = await Player.findAll({where:{gameId:gameId, number:winner}});
     const user = await User.findByPk(player[0].userId);
     return user;

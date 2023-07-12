@@ -11,21 +11,21 @@ async function checkTurn(gameId, player) {
 
 //colocar ficha en la columna
 async function putTokenInColumn(n_column, gameId, player) {
-    const cells = await Cell.findAll({
+    const board = await Cell.findAll({
       where: {
         gameId: gameId,
         column: n_column
       }
     });
     const column = [];
-    for (const cell of cells) {
+    for (const cell of board) {
       const { row, status } = cell;
       column[row] = status;
     }
 
     for (let i = 6; i >= 0; i--) {
       if (column[i] === 0) {
-        const cell = cells.find(cell => cell.row === i);
+        const cell = board.find(cell => cell.row === i);
         await cell.update({status: player});
         return cell;
       }
@@ -76,6 +76,14 @@ async function checkWinner(gameId) {
     return 0;
 }
 
+async function getBoard(gameId) {
+    const board = await Cell.findAll({
+        where: { gameId: gameId },
+        order: [['row', 'ASC'], ['column', 'ASC']]
+      });
+    return board;
+}
+
 //cambiar el turno
 async function changeTurn(gameId) {
     const game = await Game.findByPk(gameId);
@@ -122,12 +130,13 @@ async function play(data) {
             result = {message: "Esa columna está llena"};
         } else {
             const winner = await checkWinner(gameId);
+            const board = await getBoard(gameId)
             if (winner === 0) {
                 const user = await changeTurn(gameId);
-                result = {cell: put_token, message: `Es el turno de ${user.username}`};
+                result = {cell: put_token, board: board, message: `Es el turno de ${user.username}`};
             } else {
                 const user = await finishGame(gameId, winner);
-                result = {cell: put_token, message: `Ganó ${user.username}!!!`};
+                result = {cell: put_token, board: board, message: `Ganó ${user.username}!!!`};
             }
         }
     }

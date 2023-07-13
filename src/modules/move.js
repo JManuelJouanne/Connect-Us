@@ -123,20 +123,20 @@ async function play(data) {
 
     const turn = await checkTurn(gameId, player);
     if (turn === false){
-        result = {message: "No es tu turno"};
+        result = {message: "No es tu turno", game: gameId};
     } else {
         const put_token = await putTokenInColumn(n_column, gameId, player);
         if (put_token === false){
-            result = {message: "Esa columna está llena"};
+            result = {message: "Esa columna está llena", game: gameId};
         } else {
             const winner = await checkWinner(gameId);
             const board = await getBoard(gameId)
             if (winner === 0) {
                 const user = await changeTurn(gameId);
-                result = {cell: put_token, board: board, message: `Es el turno de ${user.username}`};
+                result = {cell: put_token, board: board, message: `Es el turno de ${user.username}`, game: gameId};
             } else {
                 const user = await finishGame(gameId, winner);
-                result = {cell: put_token, board: board, message: `Ganó ${user.username}!!!`};
+                result = {cell: put_token, board: board, message: `Ganó ${user.username}!!!`, game: gameId};
             }
         }
     }

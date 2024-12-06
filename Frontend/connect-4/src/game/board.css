@@ -1,0 +1,37 @@
+#board {
+    height: 490px;
+    width: 630px;
+    background-color: transparent;
+    border: 10px solid white;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+
+}
+
+.red-piece{
+    background-color: red;
+}
+
+.yellow-piece{
+    background-color: yellow;
+}
+
+#tablero {
+    margin: 40px;
+}
+
+.turnos{
+    justify-content: center;
+    display: flex;
+    color: yellow;
+    font-size: 25px;
+    font-family: 'Gloria Hallelujah';
+}
+#imagen{
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+}
+  
+  

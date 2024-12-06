@@ -1,0 +1,39 @@
+.pic-profile {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 2px #fff;
+    vertical-align: middle;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.member {
+    padding: 0px 40px 0px 40px;
+    width: 35%;
+    align-items: center;
+    text-align: center;
+}
+
+.description {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 1.5;
+
+}
+
+h1 {
+    margin: 0px;
+    padding: 0px;
+}
+
+h2 {
+    margin: 0px;
+    text-align: center;
+}
+

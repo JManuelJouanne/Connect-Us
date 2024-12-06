@@ -1,0 +1,59 @@
+#menu-container {
+  width: 60%;
+  padding-top: 220px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  flex-direction: row;
+  display: flex;
+  margin: auto;
+  width: 100%;
+  height: 200px;
+}
+
+#np {
+  width: 49%;
+  margin: auto;
+  text-align: center;
+}
+
+#np button {
+  padding: 10px 30px;
+}
+
+#form {
+  width: 49%;
+  margin: auto;
+  text-align: center;
+}
+
+.game {
+  height: 100px;
+  width: 100%;
+  flex-direction: column;
+  display: flex;
+  margin: auto;
+  padding-left: 70px;
+}
+
+.input1 {
+  margin: auto;
+  width: 100%;
+  margin: 5px;
+  height: 10px;
+  text-align: center;
+}
+
+
+input:hover {
+  background-color: #fff;
+  color: black;
+}
+
+
+
